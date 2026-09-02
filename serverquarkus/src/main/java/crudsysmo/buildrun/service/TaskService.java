@@ -4,6 +4,7 @@ import crudsysmo.buildrun.dto.PagedResponse;
 import crudsysmo.buildrun.entity.TaskEntity;
 import crudsysmo.buildrun.exception.TaskNotFoundException;
 import crudsysmo.buildrun.repository.TaskRepository;
+import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class TaskService {
     }
 
 
-    public TaskEntity createTask(TaskEntity taskEntity) {
+    public TaskEntity createTask(TaskEntity taskEntity) {   // injeção por construtor
         taskRepository.persist(taskEntity);
         return taskEntity;
     }
@@ -27,7 +28,8 @@ public class TaskService {
 
     // page começa em 0. O count()/pageCount() disparam uma query de COUNT à parte, além da que busca os dados.
     public PagedResponse<TaskEntity> findAllWithPage(Integer page, Integer pageSize) {
-        var query = taskRepository.findAll().page(page, pageSize);
+        var query = taskRepository.findAll(Sort.by("createdAt").descending())
+                .page(page, pageSize);
 
         List<TaskEntity> content = query.list();
         long totalElements = query.count();
@@ -39,7 +41,8 @@ public class TaskService {
 
     // Sem paginação, retorna todas as tasks.
     public List<TaskEntity> findAll() {
-        return taskRepository.findAll().list();
+
+        return taskRepository.findAll(Sort.by("createdAt").descending()).list();
     }
 
 
