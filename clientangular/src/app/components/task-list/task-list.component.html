@@ -1,0 +1,139 @@
+<app-header (newTask)="openCreateForm()"
+            [newTaskDisabled]="editingTask() !== null"/>
+
+<div class="container mt-4 mb-5">
+
+  <div class="mb-3">
+    <h1 class="h4 mb-1">Tarefas</h1>
+    <p class="text-secondary small mb-0">Gerencie as tarefas cadastradas</p>
+  </div>
+
+  @if (showForm()) {
+  <app-task-form [task]="editingTask()"
+                 (saved)="onSaved()"
+                 (cancelled)="closeForm()"/>
+  }
+
+  @if (loading()) {
+  <div class="card border-0 shadow-sm">
+    <div class="card-body text-center py-5">
+      <span class="spinner-border text-primary" role="status" aria-hidden="true"></span>
+      <p class="text-secondary mt-3 mb-0">Carregando tarefas...</p>
+    </div>
+  </div>
+
+  } @else if (errorMessage()) {
+  <div class="alert alert-danger d-flex align-items-center justify-content-between rounded-3 shadow-sm p-3"
+       role="alert">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-exclamation-triangle-fill fs-4 text-danger"></i>
+      <div>
+        <strong class="d-block">Ocorreu um problema:</strong>
+        <span class="small">{{ errorMessage() }}</span>
+      </div>
+    </div>
+    <button class="btn btn-outline-danger btn-sm ms-3" (click)="loadTasks()">
+      Tentar novamente
+    </button>
+  </div>
+
+  } @else if (tasks().length === 0) {
+  <div class="card border-0 shadow-sm">
+    <div class="card-body text-center py-5">
+      <i class="bi bi-inbox fs-1 text-secondary d-block mb-2"></i>
+      <p class="text-secondary mb-3">Nenhuma tarefa cadastrada ainda.</p>
+      <button type="button" class="btn btn-primary" (click)="openCreateForm()">
+        Criar a primeira tarefa
+      </button>
+    </div>
+  </div>
+
+  } @else {
+  <div class="card border-0 shadow-sm">
+    <table class="table table-hover align-middle mb-0">
+
+      <thead class="table-light">
+      <tr class="text-uppercase small text-secondary">
+        <th class="fw-semibold">Título</th>
+        <th class="fw-semibold">Descrição</th>
+        <th class="fw-semibold">Status</th>
+        <th class="fw-semibold">Criada em</th>
+        <th class="text-end"><span class="visually-hidden">Ações</span></th>
+      </tr>
+      </thead>
+
+      <tbody>
+      @for (task of tasks(); track task.id) {
+      <tr>
+        <td class="fw-medium">{{ task.title }}</td>
+
+        <td class="text-secondary description-cell">{{ task.description || '---' }}</td>
+
+        <td>
+          <span class="d-inline-block" data-tooltip="Alterar status">
+            <select class="status-select {{ badgeClass(task.status) }}"
+                    [value]="task.status"
+                    [disabled]="savingStatusId() === task.id"
+                    (change)="onStatusChange(task, $event)"
+                    aria-label="Alterar status da tarefa">
+              <option value="ABERTO">Aberto</option>
+              <option value="EM_ANDAMENTO">Em andamento</option>
+              <option value="CONCLUIDO">Concluído</option>
+            </select>
+          </span>
+        </td>
+
+        <td class="text-nowrap">
+          <div>{{ task.createdAt | date:'dd/MM/yyyy' }}</div>
+          <div class="text-secondary small">às {{ task.createdAt | date:'HH:mm' }}</div>
+        </td>
+
+        <td class="text-end text-nowrap">
+          <button type="button"
+                  class="btn btn-icon btn-icon-primary me-1"
+                  (click)="openEditForm(task)"
+                  data-tooltip="Editar tarefa"
+                  aria-label="Editar tarefa">
+            <i class="bi bi-pencil"></i>
+          </button>
+
+          <button type="button"
+                  class="btn btn-icon btn-icon-danger"
+                  (click)="askDelete(task)"
+                  data-tooltip="Excluir tarefa"
+                  aria-label="Excluir tarefa">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
+      </tr>
+      }
+      </tbody>
+
+    </table>
+
+    <div class="card-footer bg-white text-secondary small">
+      {{ tasks().length }} tarefa(s)
+    </div>
+  </div>
+  }
+
+@if (taskToDelete()) {
+<app-confirm-dialog
+  dialogTitle="Excluir tarefa"
+  [message]="deleteMessage()"
+  details="Esta ação não pode ser desfeita."
+  confirmText="Excluir"
+  confirmClass="btn-danger"
+  [processing]="deleting()"
+  [errorMessage]="deleteError()"
+  (confirmed)="confirmDelete()"
+  (cancelled)="cancelDelete()"/>
+}
+
+@if (toast(); as currentToast) {
+<app-toast [message]="currentToast.message"
+           [type]="currentToast.type"
+           (closed)="closeToast()"/>
+}
+
+</div>

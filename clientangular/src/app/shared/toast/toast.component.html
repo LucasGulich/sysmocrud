@@ -1,0 +1,13 @@
+<div class="app-toast alert alert-{{ type() }} d-flex align-items-center gap-2 mb-0"
+     role="alert"
+     aria-live="polite">
+
+  <i class="bi {{ iconClass() }} flex-shrink-0"></i>
+
+  <span class="flex-grow-1">{{ message() }}</span>
+
+  <button type="button"
+          class="btn-close flex-shrink-0"
+          (click)="closed.emit()"
+          aria-label="Fechar"></button>
+</div>

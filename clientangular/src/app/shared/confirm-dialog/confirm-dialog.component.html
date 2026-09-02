@@ -1,0 +1,55 @@
+<!-- Fundo escurecido -->
+<div class="modal-backdrop show"></div>
+
+<div class="modal d-block"
+     tabindex="-1"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="confirmDialogTitle"
+     (click)="onBackdropClick($event)">
+
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmDialogTitle">{{ dialogTitle() }}</h5>
+        <button type="button"
+                class="btn-close"
+                (click)="onCancel()"
+                [disabled]="processing()"
+                aria-label="Fechar"></button>
+      </div>
+
+      <div class="modal-body">
+        <p class="mb-0">{{ message() }}</p>
+
+        @if (details()) {
+        <p class="text-secondary small mt-2 mb-0">{{ details() }}</p>
+        }
+
+        @if (errorMessage()) {
+        <div class="alert alert-danger mt-3 mb-0">{{ errorMessage() }}</div>
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button type="button"
+                class="btn btn-outline-secondary"
+                (click)="onCancel()"
+                [disabled]="processing()">
+          Cancelar
+        </button>
+        <button type="button"
+                class="btn {{ confirmClass() }}"
+                (click)="onConfirm()"
+                [disabled]="processing()">
+          @if (processing()) {
+          <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          }
+          {{ confirmText() }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

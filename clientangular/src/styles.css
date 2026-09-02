@@ -1,0 +1,179 @@
+@import "bootstrap/dist/css/bootstrap.min.css";
+@import "bootstrap-icons/font/bootstrap-icons.css";
+
+
+/* ============================================================
+   Base da página
+   ============================================================ */
+body {
+  background-color: #f4f6f9;
+}
+
+
+/* ============================================================
+   Tooltip global - pode usar em qualquer elemento
+   Uso: <button data-tooltip="Texto" aria-label="Texto">
+   ============================================================ */
+/* Seleciona qualquer elemento HTML que possua o atributo 'data-tooltip' */
+/* Define 'relative' para servir de ponto de ancoragem/referencia para o balao do tooltip */
+[data-tooltip] {
+  position: relative;
+}
+
+/* Cria o balao do tooltip para os elementos com 'data-tooltip' */
+/* 'attr(data-tooltip)' le o texto digitado dentro do atributo no HTML e insere como conteudo */
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-6px);
+  z-index: 1080;
+
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  background-color: #212529;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.2;
+  white-space: nowrap;
+
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s ease-in-out;
+  pointer-events: none;
+}
+
+/* Quando o usuario passa o cursor (:hover) ou navega via teclado (:focus-visible) no elemento */
+/* Torna o balao de tooltip visivel alterando a opacidade e a visibilidade na tela */
+[data-tooltip]:hover::after,
+[data-tooltip]:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+
+/* ============================================================
+   Toast global - mensagem flutuante de feedback
+   Uso: <div class="app-toast alert alert-success">Texto</div>
+   ============================================================ */
+.app-toast {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1090;
+
+  min-width: 260px;
+  max-width: 360px;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+
+  animation: app-toast-in 0.2s ease-out;
+}
+
+/* Define uma animacao chamada 'app-toast-in' (usada para notificacoes Toast) */
+@keyframes app-toast-in {
+  /* Estado inicial da animacao: totalmente invisivel e levemente deslocado 0.5rem para cima */
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  /* Estado final da animacao: totalmente visivel e na sua posicao original perfeita */
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* ============================================================
+   Botao de icone quadrado - reutilizavel
+   Uso: <button class="btn btn-icon btn-icon-primary">
+   ============================================================ */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 2.2rem;
+  height: 2.2rem;
+
+  --bs-btn-padding-x: 0;
+  --bs-btn-padding-y: 0;
+  --bs-btn-line-height: 1;
+  --bs-btn-font-size: 1rem;
+}
+
+/* variante azul (editar) */
+.btn-icon-primary {
+  --bs-btn-color: var(--bs-primary);
+  --bs-btn-bg: var(--bs-primary-bg-subtle);
+  --bs-btn-border-color: var(--bs-primary-border-subtle);
+
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--bs-primary);
+  --bs-btn-hover-border-color: var(--bs-primary);
+
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--bs-primary);
+  --bs-btn-active-border-color: var(--bs-primary);
+
+  --bs-btn-focus-shadow-rgb: var(--bs-primary-rgb);
+}
+
+/* variante vermelha (excluir) */
+.btn-icon-danger {
+  --bs-btn-color: var(--bs-danger);
+  --bs-btn-bg: var(--bs-danger-bg-subtle);
+  --bs-btn-border-color: var(--bs-danger-border-subtle);
+
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--bs-danger);
+  --bs-btn-hover-border-color: var(--bs-danger);
+
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--bs-danger);
+  --bs-btn-active-border-color: var(--bs-danger);
+
+  --bs-btn-focus-shadow-rgb: var(--bs-danger-rgb);
+}
+
+
+/* ============================================================
+   Select de status em formato de pílula
+   A cor vem de uma classe text-bg-* passada junto.
+   Uso: <select class="status-select text-bg-success">
+   ============================================================ */
+.status-select {
+  border: 0;
+  border-radius: 50rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+/* As opções da lista aberta precisam de cor própria,
+   senão herdam o texto branco da pílula e ficam ilegíveis. */
+.status-select option {
+  color: var(--bs-body-color);
+  background-color: var(--bs-body-bg);
+  font-weight: 400;
+}
+
+.status-select:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+
+/* ============================================================
+   Rolagem suave da pagina
+   ============================================================ */
+html {
+  scroll-behavior: smooth;
+}
+
+
