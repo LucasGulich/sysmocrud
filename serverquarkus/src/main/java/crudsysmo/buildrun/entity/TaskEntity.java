@@ -27,7 +27,7 @@ public class TaskEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tx_status")
-    private TaskStatus status;
+    private TaskStatus status = TaskStatus.ABERTO;
 
     @CreationTimestamp
     @Column(name = "dt_criacao", updatable = false)
