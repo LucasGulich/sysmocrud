@@ -132,6 +132,8 @@ Os campos 'id' e 'createdAt' são gerados pelo servidor e ignorados se enviados 
 
 1. Backend
 
+Os testes do backend exigem o PostgreSQL rodando e a base sysmocrud criada.
+
 ```bash
 # Navegar até o diretório do backend
 cd serverquarkus
