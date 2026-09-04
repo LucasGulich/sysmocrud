@@ -6,8 +6,10 @@ import crudsysmo.buildrun.service.TaskService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 
 import java.util.UUID;
 
@@ -40,11 +42,18 @@ public class TaskController {
         return Response.ok(tasks).build();
     }
 
-    // Cria uma tarefa nova. O @Valid já barra requisição sem título antes de chegar no service.
+    // Cria uma tarefa nova. O @Valid ja barra requisicao sem titulo antes de chegar no service.
+    // Devolve 201 Created com o cabecalho Location apontando para a tarefa criada.
     @POST
     @Transactional
-    public Response createTask(@Valid TaskEntity taskEntity) {
-        return Response.ok(taskService.createTask(taskEntity)).build();
+    public Response createTask(@Valid TaskEntity taskEntity, @Context UriInfo uriInfo) {
+        var created = taskService.createTask(taskEntity);
+
+        var location = uriInfo.getAbsolutePathBuilder()    // Descobre a URL que recebeu o POST (ex: http://localhost:8080/api/tasks)
+                .path(created.getId().toString())          // Anexa o ID ao final (ex: /15)
+                .build();                                  // Monta a URI final: http://localhost:8080/api/tasks/15
+
+        return Response.created(location).entity(created).build();
     }
 
     // Atualiza título, descrição e status de uma tarefa existente (o id vem pela URL).
