@@ -32,7 +32,7 @@ $env:JAVA_HOME = "C:\caminho\para\jdk-21"
 ```
 
 
-Obs.: Não é necessário instalar o Maven.** O projeto inclui o Maven Wrapper (`mvnw`), que baixa e usa a versão correta automaticamente.
+Obs.: **Não é necessário instalar o Maven.** O projeto inclui o Maven Wrapper (`mvnw`), que baixa e usa a versão correta automaticamente.
 
 ---
 
@@ -90,11 +90,12 @@ A aplicação abre em **http://localhost:4200**.
 
 ## Endereços
 
-
-Aplicação web				http://localhost:4200
-API							http://localhost:8080
-**Documentação Swagger**	http://localhost:8080/q/swagger-ui
-Contrato OpenAPI			http://localhost:8080/q/openapi
+| O quê | URL |
+|---|---|
+| Aplicação web | http://localhost:4200 |
+| API | http://localhost:8080 |
+| **Documentação Swagger** | http://localhost:8080/q/swagger-ui |
+| Contrato OpenAPI | http://localhost:8080/q/openapi |
 
 ---
 
