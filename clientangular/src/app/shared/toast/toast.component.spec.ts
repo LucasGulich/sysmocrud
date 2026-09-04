@@ -14,6 +14,9 @@ describe('ToastComponent', () => {
 
     fixture = TestBed.createComponent(ToastComponent);
     component = fixture.componentInstance;
+
+    fixture.componentRef.setInput('message', 'Mensagem de teste');
+
     await fixture.whenStable();
   });
 
