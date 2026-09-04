@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Task} from '../models/task';
+import {PagedResponse} from '../models/paged-response';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +15,15 @@ export class TaskService {
   // GET do /tasks/all (ja esta vindo ordenado do backend).
   findAll(): Observable<Task[]> {
     return this.http.get<Task[]>(`${this.apiUrl}/all`);
+  }
+
+  // GET /tasks?page=&pageSize= (Lista paginada).
+  findPage(page: number, pageSize: number): Observable<PagedResponse<Task>> {
+    const params = new HttpParams()
+      .set('page', page)
+      .set('pageSize', pageSize);
+
+    return this.http.get<PagedResponse<Task>>(this.apiUrl, { params });
   }
 
   // POST /tasks (criar task).

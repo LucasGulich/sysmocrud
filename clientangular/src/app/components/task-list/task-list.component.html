@@ -111,29 +111,53 @@
 
     </table>
 
-    <div class="card-footer bg-white text-secondary small">
-      {{ tasks().length }} tarefa(s)
+    <div class="card-footer bg-white d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <span class="text-secondary small">
+        Mostrando {{ tasks().length }} de {{ totalElements() }} tarefa(s)
+      </span>
+
+      @if (!allLoaded()) {
+      <div class="d-flex gap-2">
+        <button type="button"
+                class="btn btn-sm btn-link text-secondary text-decoration-none px-2"
+                (click)="loadAll()"
+                [disabled]="loadingMore()">
+          Carregar tudo
+        </button>
+        <button type="button"
+                class="btn btn-sm btn-primary rounded-pill px-3 d-inline-flex align-items-center gap-2"
+                (click)="loadMore()"
+                [disabled]="loadingMore()">
+          @if (loadingMore()) {
+          <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+          } @else {
+          <i class="bi bi-chevron-down"></i>
+          }
+          Carregar mais {{ pageSize }}
+        </button>
+      </div>
+      }
     </div>
   </div>
   }
 
-@if (taskToDelete()) {
-<app-confirm-dialog
-  dialogTitle="Excluir tarefa"
-  [message]="deleteMessage()"
-  details="Esta ação não pode ser desfeita."
-  confirmText="Excluir"
-  confirmClass="btn-danger"
-  [processing]="deleting()"
-  [errorMessage]="deleteError()"
-  (confirmed)="confirmDelete()"
-  (cancelled)="cancelDelete()"/>
-}
+  @if (taskToDelete()) {
+  <app-confirm-dialog
+    dialogTitle="Excluir tarefa"
+    [message]="deleteMessage()"
+    details="Esta ação não pode ser desfeita."
+    confirmText="Excluir"
+    confirmClass="btn-danger"
+    [processing]="deleting()"
+    [errorMessage]="deleteError()"
+    (confirmed)="confirmDelete()"
+    (cancelled)="cancelDelete()"/>
+  }
 
-@if (toast(); as currentToast) {
-<app-toast [message]="currentToast.message"
-           [type]="currentToast.type"
-           (closed)="closeToast()"/>
-}
+  @if (toast(); as currentToast) {
+  <app-toast [message]="currentToast.message"
+             [type]="currentToast.type"
+             (closed)="closeToast()"/>
+  }
 
 </div>

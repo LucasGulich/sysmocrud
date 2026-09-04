@@ -6,6 +6,7 @@ import {TaskFormComponent} from '../task-form/task-form.component';
 import {ConfirmDialogComponent} from '../../shared/confirm-dialog/confirm-dialog.component';
 import {HeaderComponent} from '../../shared/header/header.component';
 import {ToastComponent, ToastType} from '../../shared/toast/toast.component';
+import {PagedResponse} from '../../models/paged-response';
 
 @Component({
   selector: 'app-task-list',
@@ -17,6 +18,7 @@ export class TaskListComponent implements OnInit {
 
   private readonly taskService = inject(TaskService);   // Injetando na variavel a class TaskService para acesso a APIs.
   private readonly viewportScroller = inject(ViewportScroller);
+  readonly pageSize = 10;
 
   readonly tasks = signal<Task[]>([]);          // Cria o estado reativo para guardar a lista. Começa com array vazio [] e apenas aceita dados no formato Task[]
   readonly loading = signal(true);   // Controlar carregamento da tela.
@@ -28,6 +30,9 @@ export class TaskListComponent implements OnInit {
   readonly deleteError = signal<string | null>(null);
   readonly toast = signal<{ message: string; type: ToastType } | null>(null);
   readonly savingStatusId = signal<string | null>(null);
+  readonly totalElements = signal(0);
+  readonly loadingMore = signal(false);
+  readonly allLoaded = computed(() => this.tasks().length >= this.totalElements());
 
   // Monta a mensagem do modal com o titulo da terefa.
   readonly deleteMessage = computed(() => {
@@ -60,7 +65,7 @@ export class TaskListComponent implements OnInit {
         this.deleting.set(false);
         this.taskToDelete.set(null);                      // Fecha o modal.
         this.showToast('Tarefa excluída com sucesso!')  // Mostra o Toast verde de sucesso
-        this.loadTasks();
+        this.reloadCurrentView();
       },
       error: (err) => {
         console.error(err);
@@ -75,25 +80,81 @@ export class TaskListComponent implements OnInit {
     this.loadTasks();   // Dispara o carregamento inicial dos dados.
   }
 
+  showToast(message: string, type: ToastType = 'success'): void {
+    this.toast.set({message: message, type: type});
+  }
+
+  // Carga inicial: primeira pagina.
   loadTasks(): void {
     this.loading.set(true);
     this.errorMessage.set(null);
 
-    this.taskService.findAll().subscribe({     // taskService.findAll busca as tasks. .subscribe Aguarda resposta da API.
-      next: (tasks) => {          // Sucesso no retorno da API.
-        this.tasks.set(tasks);                 // Guarda a lista de tarefas retornada pelo backend dentro do Signal tasks
+    this.taskService.findPage(0, this.pageSize).subscribe({
+      next: (response) => {
+        this.tasks.set(response.content);
+        this.totalElements.set(response.totalElements);
         this.loading.set(false);
       },
-      error: (err) => {             // Erro no retorno da API.
+      error: (err) => {
         console.error(err);
-        this.errorMessage.set('Não foi possível carregar as tarefas. Verifique a API e servidor!');
+        this.showToast('Não foi possível carregar todas as tarefas.', 'danger');
         this.loading.set(false);
       }
     });
   }
 
-  showToast(message: string, type: ToastType = 'success'): void {
-    this.toast.set({ message: message, type: type });
+  // Busca a proxima pagina e ACRESCENTA ao que ja esta na tela.
+  loadMore(): void {
+    const nextPage = Math.floor(this.tasks().length / this.pageSize);
+
+    this.loadingMore.set(true);
+
+    this.taskService.findPage(nextPage, this.pageSize).subscribe({
+      next: (response) => {
+        this.tasks.update(list => [...list, ...response.content]);
+        this.totalElements.set(response.totalElements);
+        this.loadingMore.set(false);
+      },
+      error: (err) => {
+        console.error(err);
+        this.showToast('Não foi possível carregar mais tarefas.', 'danger');
+        this.loadingMore.set(false);
+      }
+    });
+  }
+
+  // Busca todas de uma vez e SUBSTITUI a lista.
+  loadAll(): void {
+    this.loadingMore.set(true);
+
+    this.taskService.findAll().subscribe({
+      next: (tasks) => {
+        this.tasks.set(tasks);
+        this.totalElements.set(tasks.length);
+        this.loadingMore.set(false);
+      },
+      error: (err) => {
+        console.error(err);
+        this.showToast('Não foi possível carregar todas as tarefas.', 'danger');
+        this.loadingMore.set(false);
+      }
+    });
+  }
+
+  // Recarrega mantendo a MESMA quantidade que ja estava visivel.
+  private reloadCurrentView(): void {
+    const visible = Math.max(this.pageSize, this.tasks().length);
+
+    this.taskService.findPage(0, visible).subscribe({
+      next: (response) => {
+        this.tasks.set(response.content);
+        this.totalElements.set(response.totalElements);
+      },
+      error: (err) => {
+        console.error(err);
+        this.showToast('Não foi possível atualizar a lista.', 'danger');
+      }
+    });
   }
 
   closeToast(): void {
@@ -154,7 +215,7 @@ export class TaskListComponent implements OnInit {
     const wasEditing = this.editingTask() !== null;                                       // Guarda se era edicao ANTES de fechar
     this.closeForm();                                                                             // Limpa o formulario e 'editingTask' vira null
     this.showToast(wasEditing ? 'Tarefa atualizada com sucesso!' : 'Tarefa criada com sucesso!')  // Dispara o Toast
-    this.loadTasks();                                                                             // recarrega a tabela para a nova tarefa aparecer.
+    this.reloadCurrentView();                                                                             // recarrega a tabela para a nova tarefa aparecer.
   }
 
   // Declara o metodo 'statusLabel' que recebe uma variavel 'status' do tipo 'TaskStatus' do task.ts. Tudo String.
